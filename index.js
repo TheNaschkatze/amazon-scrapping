@@ -1,7 +1,14 @@
 const puppeteer = require('puppeteer');
 
+function printProgress(progress) {
+    process.stdout.clearLine();
+    process.stdout.cursorTo(0);
+    process.stdout.write(`${Math.round(progress * 100)}% of work done.`);
+}
+
 async function getProducts(productLinks) {
     let products = []
+    let counter = 0
     const browser = await puppeteer.launch();
     const page = await browser.newPage();
 
@@ -22,8 +29,9 @@ async function getProducts(productLinks) {
             })
         });
         product.link = productLink.url
-        console.log(product)
         products.push(product)
+        counter++
+        printProgress(counter / productLinks.length)
     }
     await browser.close();
     return products
@@ -43,6 +51,7 @@ async function getProductLinksInAPage(page) {
 }
 
 async function getProductLinksInNPages(page, n) {
+    console.log('getting all products pdp URLS')
     let allLinks = []
     for (let i = 0; i < n; i++) {
         const links = await getProductLinksInAPage(page)

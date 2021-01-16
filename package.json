@@ -14,10 +14,10 @@
   "devDependencies": {},
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/TheNaschkatze/AmazonScrapping.git"
+    "url": "git+https://github.com/TheNaschkatze/amazon-scrapping.git"
   },
   "bugs": {
-    "url": "https://github.com/TheNaschkatze/AmazonScrapping/issues"
+    "url": "https://github.com/TheNaschkatze/amazon-scrapping/issues"
   },
-  "homepage": "https://github.com/TheNaschkatze/AmazonScrapping#readme"
+  "homepage": "https://github.com/TheNaschkatze/amazon-scrapping#readme"
 }

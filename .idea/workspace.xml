@@ -3,9 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="fc26482a-0ccd-415b-8669-d58fdbad38fb" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/example.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/index.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -20,6 +18,11 @@
     </option>
   </component>
   <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="main" />
+      </map>
+    </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="ProjectId" id="1n7kAAetsZ7s4iUYMBrO1wKfLf9" />
@@ -56,11 +59,40 @@
       <workItem from="1610748373584" duration="1825000" />
       <workItem from="1610750234848" duration="42000" />
       <workItem from="1610793519483" duration="11772000" />
-      <workItem from="1610810333735" duration="353000" />
+      <workItem from="1610810333735" duration="883000" />
     </task>
+    <task id="LOCAL-00001" summary="prepare for package">
+      <created>1610810883182</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1610810883182</updated>
+    </task>
+    <task id="LOCAL-00002" summary="prepare for package">
+      <created>1610811116518</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1610811116518</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="prepare for package" />
+    <option name="LAST_COMMIT_MESSAGE" value="prepare for package" />
+  </component>
+  <component name="WindowStateProjectService">
+    <state x="424" y="8" key="CommitChangelistDialog2" timestamp="1610811116392">
+      <screen x="0" y="0" width="1680" height="1050" />
+    </state>
+    <state x="424" y="8" key="CommitChangelistDialog2/0.0.1680.1050@0.0.1680.1050" timestamp="1610811116392" />
+    <state x="440" y="258" key="Vcs.Push.Dialog.v2" timestamp="1610811117779">
+      <screen x="0" y="0" width="1680" height="1050" />
+    </state>
+    <state x="440" y="258" key="Vcs.Push.Dialog.v2/0.0.1680.1050@0.0.1680.1050" timestamp="1610811117779" />
   </component>
 </project>

@@ -1,5 +1,5 @@
 {
-  "name": "screening-project",
+  "name": "amazon-scrapping",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -10,5 +10,14 @@
   "license": "ISC",
   "dependencies": {
     "puppeteer": "^5.5.0"
-  }
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TheNaschkatze/AmazonScrapping.git"
+  },
+  "bugs": {
+    "url": "https://github.com/TheNaschkatze/AmazonScrapping/issues"
+  },
+  "homepage": "https://github.com/TheNaschkatze/AmazonScrapping#readme"
 }

@@ -2,24 +2,27 @@ const puppeteer = require('puppeteer');
 const print = require('./printHelper')
 
 async function getPDPProductInfo(browser, pageLink) {
-    const page = await browser.newPage();
-    await page.goto(pageLink);
-    await page.waitForSelector('#main-image-container');
-    let product = await page.evaluate(() => {
-        const title = document.querySelector('#productTitle') ? document.querySelector('#productTitle').textContent.replace(/\n/g, '') : null;
-        const price = document.querySelector('#priceblock_ourprice') ? document.querySelector('#priceblock_ourprice').textContent : null;
-        const avgRating = document.querySelector('#acrPopover') ? document.querySelector('#acrPopover').title : null
-        const numberOfReviews = document.querySelector('#acrCustomerReviewText') ? document.querySelector('#acrCustomerReviewText').textContent : null
-        return ({
-            //@TODO ADD FIRST LISTING DATE AMAZON
-            title: title,
-            price: price,
-            avgRating: avgRating,
-            numberOfReviews: numberOfReviews,
-        })
-    });
-    product.link = pageLink
-    return product
+    try {
+        const page = await browser.newPage();
+        await page.goto(pageLink);
+        await page.waitForSelector('#productTitle', {timeout: 3000});
+        let product = await page.evaluate(() => {
+            const title = document.querySelector('#productTitle') ? document.querySelector('#productTitle').textContent.replace(/\n/g, '') : null;
+            const price = document.querySelector('#priceblock_ourprice') ? document.querySelector('#priceblock_ourprice').textContent : null;
+            const avgRating = document.querySelector('#acrPopover') ? document.querySelector('#acrPopover').title : null
+            const numberOfReviews = document.querySelector('#acrCustomerReviewText') ? document.querySelector('#acrCustomerReviewText').textContent : null
+            return ({
+                //@TODO ADD FIRST LISTING DATE AMAZON
+                title: title,
+                price: price,
+                avgRating: avgRating,
+                numberOfReviews: numberOfReviews,
+            })
+        });
+        product.link = pageLink
+        return product
+    } catch {
+    }
 }
 
 async function getProducts(productLinks, numberOfSimultaneousPDP) {
@@ -39,7 +42,7 @@ async function getProducts(productLinks, numberOfSimultaneousPDP) {
         print((i + numberOfTabs) / numberOfProductLinks)
     }
     await browser.close();
-    return products
+    return products.filter(product => !!product)
 }
 
 async function getProductLinksInASearchPage(page) {
@@ -87,8 +90,3 @@ async function scrappeOnAmazon(product, numberOfSearchPages, numberOfSimultaneou
 }
 
 module.exports = scrappeOnAmazon;
-
-// (async () => {
-//     const test = await scrappeOnAmazon('play station 5', 1, 5)
-//     console.log(test)
-// })();

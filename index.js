@@ -92,7 +92,7 @@ async function scrappeOnAmazon(product, numberOfSearchPages, numberOfSimultaneou
 
 module.exports = scrappeOnAmazon;
 
-(async () => {
-    const test = await scrappeOnAmazon('play station 5', 1, 5)
-    console.log(test)
-})();
+// (async () => {
+//     const test = await scrappeOnAmazon('play station 5', 1, 5)
+//     console.log(test)
+// })();

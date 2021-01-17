@@ -8,7 +8,6 @@ function printProgress(progress) {
 
 async function getPDPProductInfo(browser, pageLink) {
     const page = await browser.newPage();
-    let products = []
     await page.goto(pageLink);
     await page.waitForSelector('#main-image-container');
     let product = await page.evaluate(() => {
@@ -25,15 +24,13 @@ async function getPDPProductInfo(browser, pageLink) {
         })
     });
     product.link = pageLink
-    products.push(product)
-    return products
+    return product
 }
 
 async function getProducts(productLinks, numberOfSimultaneousPDP) {
     let products = []
     const numberOfProductLinks = productLinks.length
     const numberOfTabs = numberOfSimultaneousPDP
-
     const browser = await puppeteer.launch();
 
     for (let i = 0; i < numberOfProductLinks; i += numberOfTabs) {
@@ -49,6 +46,7 @@ async function getProducts(productLinks, numberOfSimultaneousPDP) {
         products = [...products, ...promises]
         printProgress((i + numberOfTabs)/numberOfProductLinks)
     }
+    await browser.close();
     return products
 }
 
@@ -65,8 +63,14 @@ async function getProductLinksInAPage(page) {
     });
 }
 
-async function getPDPUrlsInNPages(page, n) {
+async function getPDPUrlsInNPages(n, product) {
     console.log('fetching all pdp URLS')
+    const browser = await puppeteer.launch();
+    const page = await browser.newPage();
+    await page.goto('https://amazon.de');
+    await page.type('#twotabsearchtextbox', product);
+    await page.keyboard.press('Enter');
+    await page.waitForNavigation();
     let allLinks = []
     for (let i = 0; i < n; i++) {
         const links = await getProductLinksInAPage(page)
@@ -78,16 +82,8 @@ async function getPDPUrlsInNPages(page, n) {
 }
 
 async function scrappeOnAmazon(product, numberOfSearchPages, numberOfSimultaneousPDP) {
-    const browser = await puppeteer.launch();
-    const page = await browser.newPage();
-    await page.goto('https://amazon.de');
-    await page.type('#twotabsearchtextbox', product);
-    await page.keyboard.press('Enter');
-    await page.waitForNavigation();
-    const productLinks = await getPDPUrlsInNPages(page, numberOfSearchPages)
-    const products = await getProducts(productLinks, numberOfSimultaneousPDP)
-    await browser.close();
-    return products
+    const productPDPLinks = await getPDPUrlsInNPages(numberOfSearchPages, product)
+    return await getProducts(productPDPLinks, numberOfSimultaneousPDP)
 }
 
 module.exports = scrappeOnAmazon;

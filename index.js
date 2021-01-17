@@ -81,7 +81,17 @@ async function getPDPUrlsInNPages(n, product) {
     return allLinks.filter(link => link !== null)
 }
 
+function correctnessOfParams(product, numberOfSearchPages, numberOfSimultaneousPDP) {
+    if(typeof product !== "string")
+        throw new Error('product must be a string')
+    if(typeof numberOfSearchPages !== 'number' || numberOfSearchPages <= 0)
+        throw new Error('numberOfSearchPages must be a number and greater than 0')
+    if(typeof numberOfSimultaneousPDP !== 'number' || numberOfSimultaneousPDP <= 0)
+        throw new Error('numberOfSimultaneousPDP must be a number and greater than 0')
+}
+
 async function scrappeOnAmazon(product, numberOfSearchPages, numberOfSimultaneousPDP) {
+    correctnessOfParams(product, numberOfSearchPages,numberOfSimultaneousPDP)
     const productPDPLinks = await getPDPUrlsInNPages(numberOfSearchPages, product)
     return await getProducts(productPDPLinks, numberOfSimultaneousPDP)
 }
@@ -89,6 +99,6 @@ async function scrappeOnAmazon(product, numberOfSearchPages, numberOfSimultaneou
 module.exports = scrappeOnAmazon;
 
 // (async () => {
-//     const test = await scrappeOnAmazon('play station 5', 1, 5)
+//     const test = await scrappeOnAmazon('play station 5', -1, 5)
 //     console.log(test)
 // })();

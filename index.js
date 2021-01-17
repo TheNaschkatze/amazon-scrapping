@@ -34,12 +34,12 @@ async function getProducts(productLinks, numberOfSimultaneousPDP) {
     for (let i = 0; i < numberOfProductLinks; i += numberOfTabs) {
         let promises = [];
         for (let j = 0; j < numberOfTabs; j++) {
+        print((i + j) / numberOfProductLinks)
             if (productLinks[i + j])
                 promises.push(getPDPProductInfo(browser, productLinks[i + j]))
         }
         promises = await Promise.all(promises)
         products = [...products, ...promises]
-        print((i + numberOfTabs) / numberOfProductLinks)
     }
     await browser.close();
     return products.filter(product => !!product)
@@ -88,5 +88,5 @@ async function scrappeOnAmazon(product, numberOfSearchPages, numberOfSimultaneou
     const productPDPLinks = await getPDPUrlsInNSearchResultPages(numberOfSearchPages, product)
     return await getProducts(productPDPLinks, numberOfSimultaneousPDP)
 }
-
+//scrappeOnAmazon('wii', 1, 10).then((r)=>console.log(r))
 module.exports = scrappeOnAmazon;

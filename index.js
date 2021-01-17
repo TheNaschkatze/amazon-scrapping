@@ -6,34 +6,49 @@ function printProgress(progress) {
     process.stdout.write(`${Math.round(progress * 100)}% of work done.`);
 }
 
-async function getProducts(productLinks) {
-    let products = []
-    let counter = 0
-    const browser = await puppeteer.launch();
+async function getPDPProductInfo(browser, pageLink) {
     const page = await browser.newPage();
+    let products = []
+    await page.goto(pageLink);
+    await page.waitForSelector('#main-image-container');
+    let product = await page.evaluate(() => {
+        const title = document.querySelector('#productTitle') ? document.querySelector('#productTitle').textContent.replace(/\n/g, '') : null;
+        const price = document.querySelector('#priceblock_ourprice') ? document.querySelector('#priceblock_ourprice').textContent : null;
+        const avgRating = document.querySelector('#acrPopover') ? document.querySelector('#acrPopover').title : null
+        const numberOfReviews = document.querySelector('#acrCustomerReviewText') ? document.querySelector('#acrCustomerReviewText').textContent : null
+        return ({
+            //@TODO ADD FIRST LISTING DATE AMAZON
+            title: title,
+            price: price,
+            avgRating: avgRating,
+            numberOfReviews: numberOfReviews,
+        })
+    });
+    product.link = pageLink
+    products.push(product)
+    return products
+}
 
-    for (const productLink of productLinks) {
-        await page.goto(productLink.url);
-        await page.waitForSelector('#main-image-container');
-        let product = await page.evaluate(() => {
-            const title = document.querySelector('#productTitle') ? document.querySelector('#productTitle').textContent.replace(/\n/g, '') : null;
-            const price = document.querySelector('#priceblock_ourprice') ? document.querySelector('#priceblock_ourprice').textContent : null;
-            const avgRating = document.querySelector('#acrPopover') ? document.querySelector('#acrPopover').title : null
-            const numberOfReviews = document.querySelector('#acrCustomerReviewText') ? document.querySelector('#acrCustomerReviewText').textContent : null
-            return ({
-                //@TODO ADD FIRST LISTING DATE AMAZON
-                title: title,
-                price: price,
-                avgRating: avgRating,
-                numberOfReviews: numberOfReviews,
-            })
-        });
-        product.link = productLink.url
-        products.push(product)
-        counter++
-        printProgress(counter / productLinks.length)
+async function getProducts(productLinks, numberOfSimultaneousPDP) {
+    let products = []
+    const numberOfProductLinks = productLinks.length
+    const numberOfTabs = numberOfSimultaneousPDP
+
+    const browser = await puppeteer.launch();
+
+    for (let i = 0; i < numberOfProductLinks; i += numberOfTabs) {
+
+        let promises = [];
+
+        for (let j = 0; j < numberOfTabs; j++) {
+            if (productLinks[i + j])
+                promises.push(getPDPProductInfo(browser, productLinks[i + j].url))
+        }
+
+        promises = await Promise.all(promises)
+        products = [...products, ...promises]
+        printProgress((i + numberOfTabs)/numberOfProductLinks)
     }
-    await browser.close();
     return products
 }
 
@@ -50,8 +65,8 @@ async function getProductLinksInAPage(page) {
     });
 }
 
-async function getProductLinksInNPages(page, n) {
-    console.log('getting all products pdp URLS')
+async function getPDPUrlsInNPages(page, n) {
+    console.log('fetching all pdp URLS')
     let allLinks = []
     for (let i = 0; i < n; i++) {
         const links = await getProductLinksInAPage(page)
@@ -62,21 +77,22 @@ async function getProductLinksInNPages(page, n) {
     return allLinks.filter(link => link !== null)
 }
 
-async function scrappeOnAmazon(product, numberOfPages) {
+async function scrappeOnAmazon(product, numberOfSearchPages, numberOfSimultaneousPDP) {
     const browser = await puppeteer.launch();
     const page = await browser.newPage();
     await page.goto('https://amazon.de');
     await page.type('#twotabsearchtextbox', product);
     await page.keyboard.press('Enter');
     await page.waitForNavigation();
-    const productLinks = await getProductLinksInNPages(page, numberOfPages)
-    const products = await getProducts(productLinks)
+    const productLinks = await getPDPUrlsInNPages(page, numberOfSearchPages)
+    const products = await getProducts(productLinks, numberOfSimultaneousPDP)
     await browser.close();
     return products
 }
 
 module.exports = scrappeOnAmazon;
 
-//(async () => {
-  //  const test = await scrappeOnAmazon('play station 5', 1)
-//})();
+(async () => {
+    const test = await scrappeOnAmazon('play station 5', 1, 5)
+    console.log(test)
+})();

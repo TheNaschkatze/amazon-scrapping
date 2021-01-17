@@ -1,10 +1,5 @@
 const puppeteer = require('puppeteer');
-
-function printProgress(progress) {
-    process.stdout.clearLine();
-    process.stdout.cursorTo(0);
-    process.stdout.write(`${Math.round(progress * 100)}% of work done.`);
-}
+const print = require('./printHelper')
 
 async function getPDPProductInfo(browser, pageLink) {
     const page = await browser.newPage();
@@ -34,17 +29,14 @@ async function getProducts(productLinks, numberOfSimultaneousPDP) {
     const browser = await puppeteer.launch();
 
     for (let i = 0; i < numberOfProductLinks; i += numberOfTabs) {
-
         let promises = [];
-
         for (let j = 0; j < numberOfTabs; j++) {
             if (productLinks[i + j])
                 promises.push(getPDPProductInfo(browser, productLinks[i + j].url))
         }
-
         promises = await Promise.all(promises)
         products = [...products, ...promises]
-        printProgress((i + numberOfTabs)/numberOfProductLinks)
+        print((i + numberOfTabs) /numberOfProductLinks)
     }
     await browser.close();
     return products
@@ -77,7 +69,6 @@ async function getPDPUrlsInNPages(n, product) {
         allLinks = [...allLinks, ...links]
         page.click('.a-last')
     }
-    //@TODO: Delete nulls values in the construction of productlinks
     return allLinks.filter(link => link !== null)
 }
 
@@ -99,6 +90,6 @@ async function scrappeOnAmazon(product, numberOfSearchPages, numberOfSimultaneou
 module.exports = scrappeOnAmazon;
 
 // (async () => {
-//     const test = await scrappeOnAmazon('play station 5', -1, 5)
+//     const test = await scrappeOnAmazon('play station 5', 1, 5)
 //     console.log(test)
 // })();

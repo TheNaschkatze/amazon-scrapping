@@ -27,20 +27,21 @@ async function getPDPProductInfo(browser, pageLink) {
 
 async function getProducts(productLinks, numberOfSimultaneousPDP) {
     let products = []
-    const numberOfProductLinks = productLinks.length
+    const numberOfProductUrls = productLinks.length
     const numberOfTabs = numberOfSimultaneousPDP
     const browser = await puppeteer.launch();
 
-    for (let i = 0; i < numberOfProductLinks; i += numberOfTabs) {
+    for (let i = 0; i < numberOfProductUrls; i += numberOfTabs) {
         let promises = [];
         for (let j = 0; j < numberOfTabs; j++) {
-        print((i + j) / numberOfProductLinks)
+            print((i + j) / numberOfProductUrls)
             if (productLinks[i + j])
                 promises.push(getPDPProductInfo(browser, productLinks[i + j]))
         }
         promises = await Promise.all(promises)
         products = [...products, ...promises]
     }
+
     await browser.close();
     return products.filter(product => !!product)
 }
@@ -56,22 +57,24 @@ async function getProductLinksInASearchPage(page) {
     });
 }
 
-async function getPDPUrlsInNSearchResultPages(n, product) {
-    console.log(`fetching all pdp URLS for ${product}, until the result-page number ${n}`)
+async function getPDPUrlsInNSearchResultPages(numberOfSearchPages, product) {
+    console.log(`fetching all pdp URLS for ${product}, until the result-page number ${numberOfSearchPages}`)
     const browser = await puppeteer.launch();
     const page = await browser.newPage();
+    let allPDPUrls = []
+
     await page.goto('https://amazon.de');
     await page.type('#twotabsearchtextbox', product);
     await page.keyboard.press('Enter');
     await page.waitForNavigation();
-    let allPDPLinks = []
-    for (let i = 0; i < n; i++) {
-        const links = await getProductLinksInASearchPage(page)
-        allPDPLinks = [...allPDPLinks, ...links]
+
+    for (let i = 0; i < numberOfSearchPages; i++) {
+        const urls = await getProductLinksInASearchPage(page)
+        allPDPUrls = [...allPDPUrls, ...urls]
         await page.click('.a-last')
     }
     await browser.close()
-    return allPDPLinks.filter(link => !!link)
+    return allPDPUrls.filter(link => !!link)
 }
 
 function correctnessOfParams(product, numberOfSearchPages, numberOfSimultaneousPDP) {
@@ -85,8 +88,8 @@ function correctnessOfParams(product, numberOfSearchPages, numberOfSimultaneousP
 
 async function scrappeOnAmazon(product, numberOfSearchPages, numberOfSimultaneousPDP) {
     correctnessOfParams(product, numberOfSearchPages, numberOfSimultaneousPDP)
-    const productPDPLinks = await getPDPUrlsInNSearchResultPages(numberOfSearchPages, product)
-    return await getProducts(productPDPLinks, numberOfSimultaneousPDP)
+    const productPDPUrls = await getPDPUrlsInNSearchResultPages(numberOfSearchPages, product)
+    return await getProducts(productPDPUrls, numberOfSimultaneousPDP)
 }
-//scrappeOnAmazon('wii', 1, 10).then((r)=>console.log(r))
+//scrappeOnAmazon('nintendo 64', 2, 10).then((r)=>console.log(r))
 module.exports = scrappeOnAmazon;

@@ -122,5 +122,5 @@ async function scrappeOnAmazon(product, numberOfSearchPages, numberOfSimultaneou
     return await getProducts(productPDPUrls, numberOfSimultaneousPDP)
 }
 
-scrappeOnAmazon('anker', 1, 10).then((r) => console.log(r))
+//scrappeOnAmazon('anker', 1, 10).then((r) => console.log(r))
 module.exports = scrappeOnAmazon;

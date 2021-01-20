@@ -48,32 +48,31 @@ async function getPDPProductInfo(browser, pageLink) {
         product.firstListingDate = await firstListingDateExtractor(page)
         product.link = pageLink
         return product
-    } catch {
+    } catch (e) {
+        console.log(e)
     }
 }
 
 async function getProducts(productLinks, numberOfSimultaneousPDP) {
-    try {
-        let products = []
-        const numberOfProductUrls = productLinks.length
-        const numberOfTabs = numberOfSimultaneousPDP
-        const browser = await puppeteer.launch();
+    let products = []
+    const numberOfProductUrls = productLinks.length
+    const numberOfTabs = numberOfSimultaneousPDP
+    const browser = await puppeteer.launch();
 
-        for (let i = 0; i < numberOfProductUrls; i += numberOfTabs) {
-            let promises = [];
-            for (let j = 0; j < numberOfTabs; j++) {
-                print((i + j) / numberOfProductUrls)
-                if (productLinks[i + j])
-                    promises.push(getPDPProductInfo(browser, productLinks[i + j]))
-            }
-            promises = await Promise.all(promises)
-            products = [...products, ...promises]
+    for (let i = 0; i < numberOfProductUrls; i += numberOfTabs) {
+        let promises = [];
+        for (let j = 0; j < numberOfTabs; j++) {
+            print((i + j) / numberOfProductUrls)
+            if (productLinks[i + j])
+                promises.push(getPDPProductInfo(browser, productLinks[i + j]))
         }
-
-        await browser.close();
-        return products.filter(product => !!product)
-    } catch (e) {
+        promises = await Promise.all(promises)
+        products = [...products, ...promises]
     }
+
+    await browser.close();
+    return products.filter(product => !!product)
+
 }
 
 async function getProductLinksInASearchPage(page) {

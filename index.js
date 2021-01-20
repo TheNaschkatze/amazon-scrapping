@@ -2,25 +2,29 @@ const puppeteer = require('puppeteer');
 const print = require('./printHelper')
 
 async function firstListingDateExtractor(page) {
-     let liArray = await page.evaluate(() => {
-        return Array.from(
-            document.querySelectorAll('#detailBullets_feature_div > ul > li'),
-            element => {
-                if (element.querySelector('span > span:first-child').textContent.includes('Im Angebot von Amazon.de seit'))
-                    return element.querySelector('span > span:nth-child(2)').textContent
-            }
-        )
-    })
-    let trArray = await page.evaluate(() => {
-        return Array.from(
-            document.querySelectorAll('#productDetails_detailBullets_sections1 > tbody > tr'),
-            element => {
-                if (element.querySelector('th').textContent.includes('Im Angebot von Amazon.de seit'))
-                    return element.querySelector('td').textContent.replace(/\n/g, '')
-            }
-        )
-    })
-    return liArray.find(li => li !== null) ? liArray.find(li => li !== null) : trArray.find(li => li !== null)
+    try {
+        let liArray = await page.evaluate(() => {
+            return Array.from(
+                document.querySelectorAll('#detailBullets_feature_div > ul > li'),
+                element => {
+                    if (element.querySelector('span > span:first-child').textContent.includes('Im Angebot von Amazon.de seit'))
+                        return element.querySelector('span > span:nth-child(2)').textContent
+                }
+            )
+        })
+        let trArray = await page.evaluate(() => {
+            return Array.from(
+                document.querySelectorAll('#productDetails_detailBullets_sections1 > tbody > tr'),
+                element => {
+                    if (element.querySelector('th').textContent.includes('Im Angebot von Amazon.de seit'))
+                        return element.querySelector('td').textContent.replace(/\n/g, '')
+                }
+            )
+        })
+        return liArray.find(li => li !== null) ? liArray.find(li => li !== null) : trArray.find(li => li !== null)
+    } catch (e) {
+        console.log(e)
+    }
 }
 
 async function getPDPProductInfo(browser, pageLink) {
@@ -41,35 +45,35 @@ async function getPDPProductInfo(browser, pageLink) {
                 numberOfReviews: numberOfReviews,
             })
         });
-
         product.firstListingDate = await firstListingDateExtractor(page)
         product.link = pageLink
-
         return product
-
     } catch {
     }
 }
 
 async function getProducts(productLinks, numberOfSimultaneousPDP) {
-    let products = []
-    const numberOfProductUrls = productLinks.length
-    const numberOfTabs = numberOfSimultaneousPDP
-    const browser = await puppeteer.launch();
+    try {
+        let products = []
+        const numberOfProductUrls = productLinks.length
+        const numberOfTabs = numberOfSimultaneousPDP
+        const browser = await puppeteer.launch();
 
-    for (let i = 0; i < numberOfProductUrls; i += numberOfTabs) {
-        let promises = [];
-        for (let j = 0; j < numberOfTabs; j++) {
-            print((i + j) / numberOfProductUrls)
-            if (productLinks[i + j])
-                promises.push(getPDPProductInfo(browser, productLinks[i + j]))
+        for (let i = 0; i < numberOfProductUrls; i += numberOfTabs) {
+            let promises = [];
+            for (let j = 0; j < numberOfTabs; j++) {
+                print((i + j) / numberOfProductUrls)
+                if (productLinks[i + j])
+                    promises.push(getPDPProductInfo(browser, productLinks[i + j]))
+            }
+            promises = await Promise.all(promises)
+            products = [...products, ...promises]
         }
-        promises = await Promise.all(promises)
-        products = [...products, ...promises]
-    }
 
-    await browser.close();
-    return products.filter(product => !!product)
+        await browser.close();
+        return products.filter(product => !!product)
+    } catch (e) {
+    }
 }
 
 async function getProductLinksInASearchPage(page) {
@@ -118,5 +122,5 @@ async function scrappeOnAmazon(product, numberOfSearchPages, numberOfSimultaneou
     return await getProducts(productPDPUrls, numberOfSimultaneousPDP)
 }
 
-//scrappeOnAmazon('anker', 1, 10).then((r) => console.log(r))
+scrappeOnAmazon('anker', 1, 10).then((r) => console.log(r))
 module.exports = scrappeOnAmazon;
